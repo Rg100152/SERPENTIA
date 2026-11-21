@@ -1,0 +1,21 @@
+/* SERPENTIA design tokens — volcanic charcoal + desert amber + crimson */
+:root {
+  --obsidian: #121110;
+  --obsidian-deep: #0d0c0b;
+  --surface: #1a1817;
+  --surface-2: #211e1c;
+  --surface-3: #292521;
+  --line: #2a2826;
+  --line-soft: #201e1c;
+  --amber: #eab308;
+  --amber-deep: #ca8a04;
+  --crimson: #dc2626;
+  --green: #65a30d;
+  --ink: #fafaf9;
+  --muted: #a8a29e;
+  --dim: #78716c;
+  --radius: 4px;
+  --font: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}

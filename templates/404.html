@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}404 — Specimen not found | SERPENTIA{% endblock %}
+{% block content %}
+<section class="error-page">
+  <p class="eyebrow">// ARCHIVE MISS</p>
+  <h1>404 <span class="amber-text">/</span> NO SPECIMEN</h1>
+  <p>This record is not in the archive. It may have been moved or never catalogued.</p>
+  <a class="btn btn--amber" href="{{ url_for('web.directory') }}">RETURN TO SPECIES INDEX</a>
+</section>
+{% endblock %}

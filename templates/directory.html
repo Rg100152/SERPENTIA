@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Species Index — SERPENTIA{% endblock %}
+
+{% macro card(s) -%}
+<a class="snake-card" href="{{ url_for('web.snake_detail', snake_id=s.id) }}">
+  <div class="card-media">
+    <img data-fallback src="{{ s.image_url }}" alt="{{ s.common_name }}" loading="lazy">
+    <span class="tag {% if s.venom_status == 'Venomous' %}tag--red{% elif s.venom_status == 'Mildly Venomous' %}tag--amber{% else %}tag--green{% endif %}">{{ s.venom_status|upper }}</span>
+    <span class="card-index">#{{ '%03d'|format(s.id) }}</span>
+  </div>
+  <div class="card-body">
+    <h3>{{ s.common_name }}</h3>
+    <em>{{ s.scientific_name }}</em>
+    <div class="card-meta">
+      <span>{{ s.continent }}</span>
+      <span>{{ (s.length_cm / 100)|round(1) }} m</span>
+      <span class="danger-dots" aria-label="Danger level {{ s.danger_level }} of 5">
+        {% for n in range(1, 6) %}<i class="{% if n <= s.danger_level %}on{% endif %}"></i>{% endfor %}
+      </span>
+    </div>
+    <span class="card-cta">VIEW INFOGRAPHIC →</span>
+  </div>
+</a>
+{%- endmacro %}
+
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">// SPECIES INDEX</p>
+  <h1>ALL <span class="amber-text">100</span> SNAKES</h1>
+  <p>Search the archive. Filter by venom status and region. Open any record for its full infographic.</p>
+</section>
+
+<section class="filter-panel">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input id="snake-search" type="search" value="{{ query }}" placeholder="Search name, scientific name, country, habitat…" autocomplete="off">
+    <button type="button" id="clear-search" title="Clear search">×</button>
+  </div>
+
+  <div class="filter-rows">
+    <div class="filter-row" id="venom-filter">
+      <span class="filter-label">VENOM</span>
+      {% for v in ['All', 'Venomous', 'Mildly Venomous', 'Non-Venomous'] %}
+        <button type="button" class="pill" data-filter="venom" data-value="{{ v }}">{{ v }}</button>
+      {% endfor %}
+    </div>
+    <div class="filter-row" id="region-filter">
+      <span class="filter-label">REGION</span>
+      {% for c in ['All'] + continents %}
+        <button type="button" class="pill" data-filter="continent" data-value="{{ c }}">{{ c }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="filter-foot">
+    <span id="result-count">SHOWING {{ snakes|length }} / {{ site_stats.total|default(100) }} RECORDS</span>
+    <label class="sort-label">SORT
+      <select id="sort-select">
+        <option value="name">NAME A–Z</option>
+        <option value="danger">DANGER LEVEL</option>
+        <option value="length">LENGTH</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<section class="directory-grid" id="snake-grid">
+  {% for s in snakes %}{{ card(s) }}{% endfor %}
+</section>
+
+<div class="empty-state" id="empty-state" hidden>
+  <strong>NO MATCHING SPECIMENS</strong>
+  <p>Try another name, region or venom status.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.SERPENTIA_SNAKES = {{ snakes|tojson }};
+  window.SERPENTIA_TOTAL = {{ site_stats.total|default(100) }};
+  window.SERPENTIA_ACTIVE = { venom: {{ active_venom|tojson }}, continent: {{ active_continent|tojson }} };
+</script>
+<script src="{{ url_for('static', filename='js/filterEngine.js') }}"></script>
+{% endblock %}

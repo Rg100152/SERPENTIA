@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}SERPENTIA — Track. Identify. Survive.{% endblock %}
+
+{% block content %}
+<section class="hero" id="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">GLOBAL HERPETOLOGY ARCHIVE <span>// 100 SPECIES</span></p>
+    <h1 class="hero-headline">TRACK.<br>IDENTIFY.<br><span class="amber-text">SURVIVE.</span></h1>
+    <p class="hero-lede">
+      A field-ready index of the world's snakes — anatomy, venom, range and
+      danger level in one sharp, searchable archive.
+    </p>
+
+    <form class="quick-id" action="{{ url_for('web.directory') }}" method="get">
+      <label>
+        <span>REGION</span>
+        <select name="continent">
+          <option value="All">All regions</option>
+          <option>Asia</option><option>Africa</option><option>Americas</option>
+          <option>Australia</option><option>Europe</option>
+        </select>
+      </label>
+      <label>
+        <span>VENOM</span>
+        <select name="venom">
+          <option value="All">Any status</option>
+          <option>Venomous</option><option>Mildly Venomous</option><option>Non-Venomous</option>
+        </select>
+      </label>
+      <button class="btn btn--amber" type="submit">FIND SNAKE <span aria-hidden="true">→</span></button>
+    </form>
+
+    <div class="stat-strip">
+      <div class="stat-box"><strong>{{ site_stats.total|default(100) }}</strong><span>SPECIES</span></div>
+      <div class="stat-box"><strong>{{ site_stats.continents|default(5) }}</strong><span>REGIONS</span></div>
+      <div class="stat-box"><strong>{{ site_stats.families|default(0) }}</strong><span>FAMILIES</span></div>
+      <div class="stat-box"><strong>24/7</strong><span>FIELD DATA</span></div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-frame" id="hero-frame">
+      <span class="ghost-word" aria-hidden="true">SERPENT</span>
+      <img id="hero-image" data-fallback src="{{ featured[0].image_url }}" alt="{{ featured[0].common_name }}">
+      <div class="hud hud--top">
+        <span class="hud-label">SPECIMEN / <span id="hero-index">01</span></span>
+        <span class="hud-label">LIVE ARCHIVE</span>
+      </div>
+      <div class="hud hud--bottom">
+        <strong id="hero-name">{{ featured[0].common_name }}</strong>
+        <em id="hero-scientific">{{ featured[0].scientific_name }}</em>
+        <div class="hud-row">
+          <span>LENGTH <b id="hero-length">{{ featured[0].length_cm }} cm</b></span>
+          <span>VENOM <b id="hero-venom">{{ featured[0].venom_type }}</b></span>
+        </div>
+      </div>
+      <span class="frame-corner tl"></span><span class="frame-corner tr"></span>
+      <span class="frame-corner bl"></span><span class="frame-corner br"></span>
+    </div>
+    <div class="slider-controls">
+      <button type="button" class="slider-btn" id="hero-prev">‹ PREV</button>
+      <span class="slider-counter" id="hero-counter">01 / {{ '%02d'|format(featured|length) }}</span>
+      <button type="button" class="slider-btn" id="hero-next">NEXT ›</button>
+    </div>
+  </div>
+</section>
+
+<section class="section-block" id="field-notes">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">// FIELD NOTES</p>
+      <h2>FLAGGED SPECIMENS</h2>
+    </div>
+    <a class="text-link" href="{{ url_for('web.directory') }}">OPEN FULL INDEX →</a>
+  </div>
+  <div class="mini-grid">
+    {% for snake in venomous[:4] %}
+      <a class="mini-card" href="{{ url_for('web.snake_detail', snake_id=snake.id) }}">
+        <img data-fallback src="{{ snake.image_url }}" alt="{{ snake.common_name }}" loading="lazy">
+        <div>
+          <span class="tag tag--red">VENOMOUS</span>
+          <h3>{{ snake.common_name }}</h3>
+          <em>{{ snake.scientific_name }}</em>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">// CONSTRICTORS</p>
+      <h2>THE HEAVYWEIGHTS</h2>
+    </div>
+    <a class="text-link" href="{{ url_for('web.directory', venom='Non-Venomous') }}">NON-VENOMOUS INDEX →</a>
+  </div>
+  <div class="mini-grid">
+    {% for snake in giants[:4] %}
+      <a class="mini-card" href="{{ url_for('web.snake_detail', snake_id=snake.id) }}">
+        <img data-fallback src="{{ snake.image_url }}" alt="{{ snake.common_name }}" loading="lazy">
+        <div>
+          <span class="tag tag--amber">{{ (snake.length_cm / 100)|round(1) }} M</span>
+          <h3>{{ snake.common_name }}</h3>
+          <em>{{ snake.scientific_name }}</em>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>window.SERPENTIA_FEATURED = {{ featured|tojson }};</script>
+<script src="{{ url_for('static', filename='js/heroSlider.js') }}"></script>
+{% endblock %}

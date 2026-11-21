@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{% if editing %}Edit {{ editing.common_name }}{% else %}Admin — SERPENTIA{% endif %}{% endblock %}
+
+{% macro field(name, label, value='', type='text', required=false) %}
+<label class="form-field">
+  <span>{{ label }}</span>
+  <input type="{{ type }}" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %}>
+</label>
+{% endmacro %}
+
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">// DATA CONTROL</p>
+  <h1>{% if editing %}EDIT <span class="amber-text">SPECIMEN</span>{% else %}ADD <span class="amber-text">SPECIMEN</span>{% endif %}</h1>
+  <p>Local-only admin form. Add a new species or update an existing record by scientific name.</p>
+</section>
+
+<div class="admin-layout">
+  <form class="admin-form" method="post">
+    <div class="form-section"><h2>BASIC INFO</h2>
+      <div class="form-grid">
+        {{ field('common_name', 'Common name', editing.common_name if editing else '', required=true) }}
+        {{ field('scientific_name', 'Scientific name', editing.scientific_name if editing else '', required=true) }}
+        {{ field('family', 'Family', editing.family if editing else '') }}
+        {{ field('country', 'Country / range', editing.country if editing else '') }}
+      </div>
+    </div>
+
+    <div class="form-section"><h2>DANGER & VENOM</h2>
+      <div class="form-grid">
+        <label class="form-field"><span>Venom status</span>
+          <select name="venom_status">
+            {% for v in ['Non-Venomous', 'Mildly Venomous', 'Venomous'] %}
+              <option {% if editing and editing.venom_status == v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="form-field"><span>Venom type</span>
+          <select name="venom_type">
+            {% for v in ['None', 'Neurotoxic', 'Hemotoxic', 'Cytotoxic', 'Neurotoxic & Cytotoxic', 'Hemotoxic & Cytotoxic', 'Neurotoxic & Hemotoxic'] %}
+              <option {% if editing and editing.venom_type == v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        {{ field('danger_level', 'Danger level (1–5)', editing.danger_level if editing else 1, type='number') }}
+        {{ field('continent', 'Region', editing.continent if editing else 'Asia') }}
+      </div>
+    </div>
+
+    <div class="form-section"><h2>ANATOMY & HABITAT</h2>
+      <div class="form-grid">
+        {{ field('length_cm', 'Length (cm)', editing.length_cm if editing else 100, type='number') }}
+        {{ field('head_shape', 'Head shape', editing.head_shape if editing else '') }}
+        {{ field('pupil_shape', 'Pupil shape', editing.pupil_shape if editing else '') }}
+        {{ field('habitat', 'Habitat', editing.habitat if editing else '') }}
+      </div>
+    </div>
+
+    <div class="form-section"><h2>VISUALS & NOTES</h2>
+      <div class="form-grid">
+        {{ field('color_morphs', 'Color morphs (comma separated)', editing.color_morphs if editing else '') }}
+        {{ field('image_url', 'Image URL', editing.image_url if editing else '', type='url') }}
+      </div>
+      <label class="form-field"><span>Description</span>
+        <textarea name="description" rows="3">{{ editing.description if editing else '' }}</textarea>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn--amber" type="submit">{% if editing %}SAVE CHANGES{% else %}ADD SPECIES{% endif %}</button>
+      {% if editing %}<a class="btn btn--ghost" href="{{ url_for('web.admin') }}">CANCEL</a>{% endif %}
+    </div>
+  </form>
+
+  <aside class="admin-list">
+    <div class="panel-head"><span>RECORDS / {{ site_stats.total|default(100) }}</span><span class="dim">CLICK TO EDIT</span></div>
+    <div class="admin-scroll">
+      {% for s in snakes %}
+        <a class="admin-item {% if editing and editing.id == s.id %}active{% endif %}" href="{{ url_for('web.admin', edit=s.id) }}">
+          <span class="dim">{{ '%03d'|format(s.id) }}</span>
+          <span><strong>{{ s.common_name }}</strong><em>{{ s.continent }} · {{ s.venom_status }}</em></span>
+          <span aria-hidden="true">→</span>
+        </a>
+      {% endfor %}
+    </div>
+  </aside>
+</div>
+{% endblock %}
